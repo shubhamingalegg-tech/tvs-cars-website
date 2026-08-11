@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TVS Car E-Commerce</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <header>
+        <nav class="navbar">
+
+            <h2 class="logo">TVS CARS</h2>
+
+            <button class="menu-btn" id="menuBtn">☰</button>
+
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#cars">Cars</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#booking">Booking</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+
+            <button class="cart-btn">Cart 🛒</button>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <!-- =========================
+             HERO SECTION
+        ========================== -->
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <h1>Find Your Perfect Car</h1>
+
+                <p>
+                    Explore our collection and find a car that fits your journey.
+                </p>
+
+                <button class="primary-btn">
+                    Explore Cars
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             CARS SECTION
+        ========================== -->
+
+        <section id="cars" class="cars-section">
+
+            <h2>Featured Cars</h2>
+
+            <p>Explore our latest car collection.</p>
+
+
+            <!-- Search -->
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="carSearch"
+                    placeholder="Search your car..."
+                >
+
+            </div>
+
+
+            <!-- Cars -->
+
+            <div class="car-container">
+
+                <!-- Car 1 -->
+
+                <div class="car-card">
+
+                    <img
+                        src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=800&q=80"
+                        alt="TVS X1"
+                    >
+
+                    <h3>TVS X1</h3>
+
+                    <p>
+                        Petrol | Automatic | 5 Seater
+                    </p>
+
+                    <h4>₹8,50,000</h4>
+
+                    <button class="cart-add-btn">
+                        Add to Cart
+                    </button>
+
+                    <button class="primary-btn details-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+
+                <!-- Car 2 -->
+
+                <div class="car-card">
+
+                    <img
+                        src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80"
+                        alt="TVS X2"
+                    >
+
+                    <h3>TVS X2</h3>
+
+                    <p>
+                        Petrol | Manual | 5 Seater
+                    </p>
+
+                    <h4>₹10,20,000</h4>
+
+                    <button class="cart-add-btn">
+                        Add to Cart
+                    </button>
+
+                    <button class="primary-btn details-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+
+                <!-- Car 3 -->
+
+                <div class="car-card">
+
+                    <img
+                        src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80"
+                        alt="TVS X3"
+                    >
+
+                    <h3>TVS X3</h3>
+
+                    <p>
+                        Hybrid | Automatic | 5 Seater
+                    </p>
+
+                    <h4>₹12,50,000</h4>
+
+                    <button class="cart-add-btn">
+                        Add to Cart
+                    </button>
+
+                    <button class="primary-btn details-btn">
+                        View Details
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ABOUT SECTION
+        ========================== -->
+
+        <section id="about" class="about-section">
+
+            <h2>Why Choose Us?</h2>
+
+            <div class="features">
+
+                <div>
+
+                    <h3>🚗 Quality Cars</h3>
+
+                    <p>
+                        Explore reliable and modern cars.
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <h3>💰 Best Prices</h3>
+
+                    <p>
+                        Get competitive prices for your dream car.
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <h3>⚡ Easy Booking</h3>
+
+                    <p>
+                        Book your preferred car easily.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             CART SECTION
+        ========================== -->
+
+        <section id="cart" class="cart-section">
+
+            <h2>Your Cart</h2>
+
+            <div id="cartItems">
+
+                <p>Your cart is empty.</p>
+
+            </div>
+
+            <h3 id="cartTotal">
+                Total: ₹0
+            </h3>
+
+        </section>
+
+
+        <!-- =========================
+             BOOKING SECTION
+        ========================== -->
+
+        <section id="booking" class="booking-section">
+
+            <h2>Book Your Car</h2>
+
+            <p>
+                Fill in your details and submit your booking request.
+            </p>
+
+
+            <form id="bookingForm" class="booking-form">
+
+                <input
+                    type="text"
+                    id="customerName"
+                    placeholder="Your Name"
+                    required
+                >
+
+                <input
+                    type="email"
+                    id="customerEmail"
+                    placeholder="Your Email"
+                    required
+                >
+
+                <input
+                    type="tel"
+                    id="customerMobile"
+                    placeholder="Mobile Number"
+                    required
+                >
+
+                <select id="selectedCar" required>
+
+                    <option value="">
+                        Select Car
+                    </option>
+
+                    <option value="TVS X1">
+                        TVS X1
+                    </option>
+
+                    <option value="TVS X2">
+                        TVS X2
+                    </option>
+
+                    <option value="TVS X3">
+                        TVS X3
+                    </option>
+
+                </select>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Submit Booking
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- =========================
+             CONTACT SECTION
+        ========================== -->
+
+        <section id="contact" class="contact-section">
+
+            <h2>Contact Us</h2>
+
+            <p>
+                Have any questions? Send us a message.
+            </p>
+
+
+            <form id="contactForm" class="contact-form">
+
+                <input
+                    type="text"
+                    id="contactName"
+                    placeholder="Your Name"
+                    required
+                >
+
+                <input
+                    type="email"
+                    id="contactEmail"
+                    placeholder="Your Email"
+                    required
+                >
+
+                <textarea
+                    id="contactMessage"
+                    placeholder="Your Message"
+                    rows="5"
+                    required
+                ></textarea>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Send Message
+                </button>
+
+            </form>
+            <p id="contactSuccess" class="contact-success"></p>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <h3>TVS CARS</h3>
+
+        <p>
+            Email: info@example.com
+        </p>
+
+        <p>
+            © 2026 TVS Car E-Commerce Project
+        </p>
+
+    </footer>
+
+
+    <!-- =========================
+         CAR DETAILS MODAL
+    ========================== -->
+
+    <div id="carModal" class="car-modal">
+
+        <div class="modal-content">
+
+            <button
+                id="closeModal"
+                class="close-modal"
+            >
+                ×
+            </button>
+
+
+            <h2 id="modalCarName">
+                Car Name
+            </h2>
+
+            <p id="modalCarPrice">
+                Price
+            </p>
+
+            <p id="modalCarDetails">
+                Petrol | Automatic | 5 Seater
+            </p>
+
+
+            <button
+                class="primary-btn"
+                id="modalBookBtn"
+            >
+                Book Now
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- JavaScript -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
