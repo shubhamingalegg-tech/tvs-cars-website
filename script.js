@@ -1,542 +1,534 @@
-//===============================
-// EXPLORE CARS
-// ===============================
+
+/* =====================================================
+   TVS BIKES & SCOOTERS - SCRIPT.JS
+===================================================== */
+
+// Google Apps Script Web App URL
+const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwyMizpelcSB8pFF2NkpLVhKvCIt2_XP4byYMCUluDYYfkuL3qGG5LbjsS6HVSEW74d4A/exec";
+
+// =====================================================
+// HELPER FUNCTIONS
+// =====================================================
+
+function getElement(id) {
+    return document.getElementById(id);
+}
+
+function showMessage(message) {
+    alert(message);
+}
+
+function getValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getVehiclePrice(card) {
+    const priceElement = card?.querySelector("h4");
+
+    if (!priceElement) {
+        return null;
+    }
+
+    const text = priceElement.textContent.trim();
+
+    // "Check with dealer" is not a numeric price.
+    const match = text.replace(/,/g, "").match(/₹\s*(\d+(?:\.\d+)?)/);
+
+    if (!match) {
+        return null;
+    }
+
+    const price = Number(match[1]);
+
+    return Number.isFinite(price) ? price : null;
+}
+
+async function sendToGoogleScript(formData) {
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: formData
+    });
+
+    const text = await response.text();
+
+    let result;
+
+    try {
+        result = JSON.parse(text);
+    } catch {
+        throw new Error(
+            "The server returned an invalid response. Check your Apps Script deployment."
+        );
+    }
+
+    if (!response.ok) {
+        throw new Error("Server error: " + response.status);
+    }
+
+    return result;
+}
+
+function getButton(form) {
+    return form?.querySelector(
+        "button[type='submit'], input[type='submit']"
+    );
+}
+
+// =====================================================
+// EXPLORE VEHICLES BUTTON
+// HTML section ID: vehicles
+// =====================================================
 
 const exploreButton = document.querySelector(".hero .primary-btn");
 
 if (exploreButton) {
-    exploreButton.addEventListener("click", function () {
-        document.querySelector("#cars").scrollIntoView({
+    exploreButton.addEventListener("click", function (event) {
+        event.preventDefault();
+
+        getElement("vehicles")?.scrollIntoView({
             behavior: "smooth"
         });
     });
 }
 
+// =====================================================
+// VEHICLE DETAILS MODAL
+// =====================================================
 
-// ===============================
-// CAR DETAILS MODAL
-// ===============================
+const carModal = getElement("carModal");
+const closeModal = getElement("closeModal");
+const modalCarName = getElement("modalCarName");
+const modalCarPrice = getElement("modalCarPrice");
+const modalCarDetails = getElement("modalCarDetails");
 
-const detailButtons = document.querySelectorAll(".details-btn");
-
-const carModal = document.getElementById("carModal");
-const closeModal = document.getElementById("closeModal");
-
-const modalCarName = document.getElementById("modalCarName");
-const modalCarPrice = document.getElementById("modalCarPrice");
-const modalCarDetails = document.getElementById("modalCarDetails");
-
-detailButtons.forEach(function (button) {
-
+document.querySelectorAll(".details-btn").forEach(function (button) {
     button.addEventListener("click", function () {
-
         const card = button.closest(".car-card");
 
-        const carName = card.querySelector("h3").textContent;
-        const carPrice = card.querySelector("h4").textContent;
-        const carDetails = card.querySelector("p").textContent;
+        if (!card) return;
 
-        modalCarName.textContent = carName;
-        modalCarPrice.textContent = carPrice;
-        modalCarDetails.textContent = carDetails;
+        const name = card.querySelector("h3");
+        const price = card.querySelector("h4");
+        const description = card.querySelector("p");
 
-        carModal.classList.add("active");
-    });
-
-});
-
-if (closeModal) {
-    closeModal.addEventListener("click", function () {
-        carModal.classList.remove("active");
-    });
-}
-
-if (carModal) {
-    carModal.addEventListener("click", function (event) {
-
-        if (event.target === carModal) {
-            carModal.classList.remove("active");
+        if (modalCarName && name) {
+            modalCarName.textContent = name.textContent.trim();
         }
 
+        if (modalCarPrice && price) {
+            modalCarPrice.textContent = price.textContent.trim();
+        }
+
+        if (modalCarDetails && description) {
+            modalCarDetails.textContent =
+                description.textContent.trim();
+        }
+
+        carModal?.classList.add("active");
     });
-}
-
-
-// ===============================
-// CART
-// ===============================
-
-const cartButton = document.querySelector(".cart-btn");
-
-const cartItems = document.getElementById("cartItems");
-const cartTotal = document.getElementById("cartTotal");
-
-const addToCartButtons = document.querySelectorAll(".cart-add-btn");
-
-let selectedCars = [];
-let totalPrice = 0;
-let cartCount = 0;
-
-
-// Add to Cart
-
-addToCartButtons.forEach(function (button) {
-
-    button.addEventListener("click", function () {
-
-        const card = button.closest(".car-card");
-
-        const carName = card.querySelector("h3").textContent;
-
-        const priceText = card.querySelector("h4").textContent;
-
-        const price = Number(
-            priceText.replace("₹", "").replace(/,/g, "")
-        );
-
-        selectedCars.push({
-            name: carName,
-            price: price
-        });
-
-        totalPrice += price;
-
-        cartCount++;
-
-        cartButton.textContent = "Cart 🛒 (" + cartCount + ")";
-
-        button.textContent = "Added ✓";
-
-        button.disabled = true;
-
-        displayCart();
-
-    });
-
 });
 
+function hideCarModal() {
+    carModal?.classList.remove("active");
+}
 
-// Display Cart
+closeModal?.addEventListener("click", hideCarModal);
 
-// ===============================
-// DISPLAY CART
-// ===============================
+carModal?.addEventListener("click", function (event) {
+    if (event.target === carModal) {
+        hideCarModal();
+    }
+});
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        hideCarModal();
+    }
+});
+
+// =====================================================
+// SHOPPING CART
+// =====================================================
+
+const cartButton = document.querySelector(".cart-btn");
+const cartItems = getElement("cartItems");
+const cartTotal = getElement("cartTotal");
+
+let selectedVehicles = [];
+
+function updateCartButton() {
+    if (cartButton) {
+        cartButton.textContent =
+            "Cart 🛒 (" + selectedVehicles.length + ")";
+    }
+}
 
 function displayCart() {
-
     if (!cartItems || !cartTotal) {
-        return;
-    }
-
-    if (selectedCars.length === 0) {
-
-        cartItems.innerHTML =
-            "<p>Your cart is empty.</p>";
-
-        cartTotal.textContent =
-            "Total: ₹0";
-
+        updateCartButton();
         return;
     }
 
     cartItems.innerHTML = "";
 
-    selectedCars.forEach(function (car, index) {
+    if (selectedVehicles.length === 0) {
+        cartItems.textContent = "Your cart is empty.";
+        cartTotal.textContent = "Total: ₹0";
+        updateCartButton();
+        return;
+    }
 
-        const item =
-            document.createElement("div");
+    let allPricesKnown = true;
+    let total = 0;
 
+    selectedVehicles.forEach(function (vehicle, index) {
+        const item = document.createElement("div");
         item.className = "cart-item";
 
-        item.innerHTML = `
-            <span>
-                ${car.name} - ₹${car.price.toLocaleString("en-IN")}
-            </span>
+        const details = document.createElement("span");
 
-            <button class="remove-cart-btn" data-index="${index}">
-                Remove ❌
-            </button>
-        `;
+        if (vehicle.price === null) {
+            details.textContent =
+                vehicle.name + " - Price confirmed by dealer";
+            allPricesKnown = false;
+        } else {
+            details.textContent =
+                vehicle.name + " - ₹" +
+                vehicle.price.toLocaleString("en-IN");
 
-        cartItems.appendChild(item);
+            total += vehicle.price;
+        }
 
-    });
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "remove-cart-btn";
+        removeButton.textContent = "Remove";
 
-    cartTotal.textContent =
-        "Total: ₹" +
-        totalPrice.toLocaleString("en-IN");
-
-
-    // Remove buttons
-
-    const removeButtons =
-        document.querySelectorAll(".remove-cart-btn");
-
-    removeButtons.forEach(function (button) {
-
-        button.addEventListener("click", function () {
-
-            const index =
-                Number(button.getAttribute("data-index"));
-
-            totalPrice -= selectedCars[index].price;
-
-            selectedCars.splice(index, 1);
-
-            cartCount--;
-
-            if (cartButton) {
-
-                cartButton.textContent =
-                    "Cart 🛒 (" + cartCount + ")";
-
-            }
-
+        removeButton.addEventListener("click", function () {
+            selectedVehicles.splice(index, 1);
             displayCart();
-
         });
 
+        item.appendChild(details);
+        item.appendChild(removeButton);
+        cartItems.appendChild(item);
     });
 
+    if (allPricesKnown) {
+        cartTotal.textContent =
+            "Total: ₹" + total.toLocaleString("en-IN");
+    } else {
+        cartTotal.textContent =
+            "Final price will be confirmed by the dealer.";
+    }
+
+    updateCartButton();
 }
 
-// Cart Button
+document.querySelectorAll(".cart-add-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+        const card = button.closest(".car-card");
 
-if (cartButton) {
+        if (!card) return;
 
-    cartButton.addEventListener("click", function () {
+        const name = card.querySelector("h3");
 
-        document.querySelector("#cart").scrollIntoView({
-            behavior: "smooth"
+        if (!name) return;
+
+        const vehicleName = name.textContent.trim();
+
+        selectedVehicles.push({
+            name: vehicleName,
+            price: getVehiclePrice(card)
         });
 
+        displayCart();
+
+        showMessage(vehicleName + " added to your cart!");
+    });
+});
+
+cartButton?.addEventListener("click", function () {
+    const section = getElement("cart") || getElement("cart-section");
+
+    section?.scrollIntoView({
+        behavior: "smooth"
+    });
+});
+
+displayCart();
+
+// =====================================================
+// VEHICLE SEARCH
+// =====================================================
+
+const searchInput = getElement("carSearch");
+
+searchInput?.addEventListener("input", function () {
+    const searchText = searchInput.value.toLowerCase().trim();
+
+    document.querySelectorAll(".car-card").forEach(function (card) {
+        const matches = card.textContent
+            .toLowerCase()
+            .includes(searchText);
+
+        card.style.display = matches ? "" : "none";
+    });
+});
+
+// =====================================================
+// MOBILE NAVIGATION
+// =====================================================
+
+const menuBtn = getElement("menuBtn");
+const navLinks = document.querySelector(".nav-links");
+
+if (menuBtn && navLinks) {
+    menuBtn.setAttribute("aria-expanded", "false");
+
+    menuBtn.addEventListener("click", function () {
+        const isOpen = navLinks.classList.toggle("active");
+
+        menuBtn.setAttribute("aria-expanded", String(isOpen));
     });
 
-}
-
-
-// ===============================
-// SEARCH
-// ===============================
-
-const searchInput =
-    document.getElementById("carSearch");
-
-const carCards =
-    document.querySelectorAll(".car-card");
-
-if (searchInput) {
-
-    searchInput.addEventListener("input", function () {
-
-        const searchText =
-            searchInput.value.toLowerCase().trim();
-
-        carCards.forEach(function (card) {
-
-            const cardText =
-                card.textContent.toLowerCase();
-
-            if (cardText.includes(searchText)) {
-
-                card.style.display = "block";
-
-            } else {
-
-                card.style.display = "none";
-
-            }
-
+    navLinks.querySelectorAll("a").forEach(function (link) {
+        link.addEventListener("click", function () {
+            navLinks.classList.remove("active");
+            menuBtn.setAttribute("aria-expanded", "false");
         });
-
     });
-
 }
 
-
-// ===============================
+// =====================================================
 // BOOKING FORM
-// ===============================
+// Backend field "car" is preserved for compatibility.
+// =====================================================
 
-const bookingForm =
-    document.getElementById("bookingForm");
+const bookingForm = getElement("bookingForm");
 
-if (bookingForm) {
+bookingForm?.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-    bookingForm.addEventListener("submit", function (event) {
+    const name = getElement("customerName")?.value.trim() || "";
+    const email = getElement("customerEmail")?.value.trim() || "";
+    const mobile = getElement("customerMobile")?.value.trim() || "";
+    const vehicle = getElement("selectedCar")?.value.trim() || "";
 
-        event.preventDefault();
+    if (name.length < 2) {
+        showMessage("Please enter your name.");
+        return;
+    }
 
-        const name =
-            document.getElementById("customerName").value.trim();
+    if (!getValidEmail(email)) {
+        showMessage("Please enter a valid email address.");
+        return;
+    }
 
-        const email =
-            document.getElementById("customerEmail").value.trim();
+    if (!/^[0-9]{10}$/.test(mobile)) {
+        showMessage("Please enter a valid 10-digit mobile number.");
+        return;
+    }
 
-        const mobile =
-            document.getElementById("customerMobile").value.trim();
+    if (!vehicle) {
+        showMessage("Please select a bike or scooter.");
+        return;
+    }
 
-        const car =
-            document.getElementById("selectedCar").value;
+    const button = getButton(bookingForm);
+    const originalText = button
+        ? (button.textContent || button.value)
+        : "";
 
+    if (button) {
+        button.disabled = true;
 
-        // Name validation
+        if (button.tagName === "INPUT") {
+            button.value = "Booking...";
+        } else {
+            button.textContent = "Booking...";
+        }
+    }
 
-        if (name.length < 2) {
+    try {
+        const data = new URLSearchParams();
 
-            alert("Please enter a valid name.");
+        data.append("action", "booking");
+        data.append("name", name);
+        data.append("email", email);
+        data.append("mobile", mobile);
 
-            return;
+        // Keep this field name to match the existing backend.
+        data.append("car", vehicle);
+
+        const result = await sendToGoogleScript(data);
+
+        if (!result || result.success !== true) {
+            throw new Error(
+                result?.error || "Booking could not be saved."
+            );
         }
 
-
-        // Email validation
-
-        if (!email.includes("@")) {
-
-            alert("Please enter a valid email.");
-
-            return;
-        }
-
-
-        // Mobile validation
-
-        if (!/^[0-9]{10}$/.test(mobile)) {
-
-            alert("Please enter a valid 10-digit mobile number.");
-
-            return;
-        }
-
-
-        // Car validation
-
-        if (car === "") {
-
-            alert("Please select a car.");
-
-            return;
-        }
-
-
-        // Successful Booking
-
-        alert(
-            "Booking Successful! ✓\n\n" +
-            "Thank you, " + name + "!\n" +
-            "Selected Car: " + car
+        showMessage(
+            "Booking Successful!\n\n" +
+            "Booking ID: " + (result.bookingId || "Please check your booking record") +
+            "\nName: " + name +
+            "\nSelected Vehicle: " + vehicle
         );
 
         bookingForm.reset();
 
-    });
+    } catch (error) {
+        console.error("Booking error:", error);
 
-}
+        showMessage(
+            "Booking Error:\n\n" + error.message
+        );
 
-// ===============================
-// MOBILE MENU
-// ===============================
+    } finally {
+        if (button) {
+            button.disabled = false;
 
-const menuBtn =
-    document.getElementById("menuBtn");
-
-const navLinks =
-    document.querySelector(".nav-links");
-
-if (menuBtn && navLinks) {
-
-    menuBtn.addEventListener("click", function () {
-
-        navLinks.classList.toggle("active");
-
-    });
-
-}
-
-
-
-// ===============================
-// CONTACT FORM
-// ===============================
-
-const contactForm =
-    document.getElementById("contactForm");
-
-const contactSuccess =
-    document.getElementById("contactSuccess");
-
-const contactSubmitBtn =
-    contactForm
-        ? contactForm.querySelector("button[type='submit']")
-        : null;
-
-
-// ===============================
-// GOOGLE APPS SCRIPT URL
-// ===============================
-
-const GOOGLE_SCRIPT_URL =
-   "https://script.google.com/macros/s/AKfycbxrG3IXwsso8gQu44ZRuAMy382S6DzGpCC3iHIzR2as3mnd6XRWQ9K8ullzE9YWZfZMIA/exec";
-
-
-// ===============================
-// CONTACT FORM SUBMIT
-// ===============================
-
-if (contactForm) {
-
-    contactForm.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const name =
-            document.getElementById("contactName").value.trim();
-
-        const email =
-            document.getElementById("contactEmail").value.trim();
-
-        const message =
-            document.getElementById("contactMessage").value.trim();
-
-
-        // ===============================
-        // VALIDATION
-        // ===============================
-
-        if (name.length < 2) {
-
-            alert("Please enter a valid name.");
-
-            return;
-        }
-
-
-        const emailPattern =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailPattern.test(email)) {
-
-            alert("Please enter a valid email address.");
-
-            return;
-        }
-
-
-        if (message.length < 5) {
-
-            alert("Please enter a message.");
-
-            return;
-        }
-
-
-        // ===============================
-        // LOADING
-        // ===============================
-
-        if (contactSubmitBtn) {
-
-            contactSubmitBtn.textContent =
-                "Sending... ⏳";
-
-            contactSubmitBtn.disabled = true;
-
-        }
-
-
-        // ===============================
-        // SEND TO GOOGLE SHEET
-        // ===============================
-
-        try {
-
-            const response = await fetch(
-                GOOGLE_SCRIPT_URL,
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        message: message
-                    })
-                }
-            );
-
-
-            const result = await response.json();
-
-
-            if (result.success) {
-
-                if (contactSuccess) {
-
-                    contactSuccess.textContent =
-                        "✓ Message sent successfully! Thank you, " +
-                        name +
-                        ".";
-
-                }
-
-                contactForm.reset();
-
+            if (button.tagName === "INPUT") {
+                button.value = originalText;
             } else {
-
-                alert(
-                    "Message could not be saved. Please try again."
-                );
-
+                button.textContent = originalText;
             }
+        }
+    }
+});
 
+// =====================================================
+// CONTACT FORM
+// =====================================================
 
-        } catch (error) {
+const contactForm = getElement("contactForm");
+const contactSuccess = getElement("contactSuccess");
 
-            console.error(error);
+contactForm?.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-            alert(
-                "Something went wrong. Please try again."
+    const name = getElement("contactName")?.value.trim() || "";
+    const email = getElement("contactEmail")?.value.trim() || "";
+    const message = getElement("contactMessage")?.value.trim() || "";
+
+    if (name.length < 2) {
+        showMessage("Please enter your name.");
+        return;
+    }
+
+    if (!getValidEmail(email)) {
+        showMessage("Please enter a valid email address.");
+        return;
+    }
+
+    if (message.length < 5) {
+        showMessage(
+            "Please enter a message of at least 5 characters."
+        );
+        return;
+    }
+
+    const button = getButton(contactForm);
+    const originalText = button
+        ? (button.textContent || button.value)
+        : "";
+
+    if (button) {
+        button.disabled = true;
+
+        if (button.tagName === "INPUT") {
+            button.value = "Sending...";
+        } else {
+            button.textContent = "Sending...";
+        }
+    }
+
+    if (contactSuccess) {
+        contactSuccess.textContent = "";
+        contactSuccess.style.display = "none";
+    }
+
+    try {
+        const data = new URLSearchParams();
+
+        data.append("action", "contact");
+        data.append("name", name);
+        data.append("email", email);
+        data.append("message", message);
+
+        const result = await sendToGoogleScript(data);
+
+        if (!result || result.success !== true) {
+            throw new Error(
+                result?.error || "Message could not be saved."
             );
-
         }
 
+        const successText =
+            "Message sent successfully! Thank you, " + name + ".";
 
-        // ===============================
-        // RESTORE BUTTON
-        // ===============================
-
-        if (contactSubmitBtn) {
-
-            contactSubmitBtn.textContent =
-                "Send Message";
-
-            contactSubmitBtn.disabled = false;
-
+        if (contactSuccess) {
+            contactSuccess.textContent = "✓ " + successText;
+            contactSuccess.style.display = "block";
+            contactSuccess.setAttribute("role", "status");
         }
 
-    });
+        showMessage(successText);
 
-}
+        contactForm.reset();
 
-// ===============================
-// MODAL BOOK NOW
-// ===============================
+    } catch (error) {
+        console.error("Contact form error:", error);
 
-const modalBookBtn = document.getElementById("modalBookBtn");
+        showMessage(
+            "Contact Error:\n\n" + error.message
+        );
 
-if (modalBookBtn) {
-    modalBookBtn.addEventListener("click", function () {
+    } finally {
+        if (button) {
+            button.disabled = false;
 
-        const carName =
-            document.getElementById("modalCarName").textContent;
+            if (button.tagName === "INPUT") {
+                button.value = originalText;
+            } else {
+                button.textContent = originalText;
+            }
+        }
+    }
+});
 
-        document.getElementById("selectedCar").value = carName;
+// =====================================================
+// MODAL BOOK NOW BUTTON
+// =====================================================
 
-        carModal.classList.remove("active");
+const modalBookBtn = getElement("modalBookBtn");
 
-        document.querySelector("#booking").scrollIntoView({
-            behavior: "smooth"
+modalBookBtn?.addEventListener("click", function () {
+    const selectedVehicle = getElement("selectedCar");
+    const vehicleName = modalCarName?.textContent.trim() || "";
+
+    if (selectedVehicle && vehicleName) {
+        const matchingOption = Array.from(
+            selectedVehicle.options
+        ).find(function (option) {
+            return option.value === vehicleName ||
+                option.textContent.trim() === vehicleName;
         });
 
+        if (matchingOption) {
+            selectedVehicle.value = matchingOption.value;
+        }
+    }
+
+    hideCarModal();
+
+    const bookingSection =
+        getElement("booking") || getElement("booking-section");
+
+    bookingSection?.scrollIntoView({
+        behavior: "smooth"
     });
-}
+});
+

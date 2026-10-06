@@ -1,388 +1,763 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>TVS Cars - Admin Panel</title>
+    <title>TVS Bikes & Scooters - Admin Panel</title>
 
-<style>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-* {
-    box-sizing: border-box;
-}
+        html {
+            scroll-behavior: smooth;
+        }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    color: #222;
-}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
 
-header {
-    background: #111827;
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
+        header {
+            background: #171717;
+            color: white;
+            padding: 25px 15px;
+            text-align: center;
+        }
 
-.container {
-    width: 95%;
-    max-width: 1400px;
-    margin: 30px auto;
-}
+        header h1 {
+            margin: 0 0 8px;
+            color: #e31837;
+        }
 
-h2 {
-    margin-bottom: 20px;
-}
+        header p {
+            margin: 0;
+        }
 
-.refresh-btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 6px;
-    background: #111827;
-    color: white;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 30px auto;
+        }
 
-.refresh-btn:hover {
-    opacity: 0.85;
-}
+        .admin-section {
+            display: none;
+        }
 
-.status {
-    margin-bottom: 15px;
-    font-weight: bold;
-}
+        .admin-section.active {
+            display: block;
+        }
 
-.table-box {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    overflow-x: auto;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
+        .dashboard {
+            text-align: center;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        .dashboard h2 {
+            margin-bottom: 30px;
+        }
 
-th,
-td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    vertical-align: top;
-}
+        .dashboard-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
 
-th {
-    background: #eeeeee;
-}
+        .dashboard-btn {
+            width: 280px;
+            min-height: 150px;
+            padding: 25px;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.10);
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-textarea {
-    width: 220px;
-    min-height: 80px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    resize: vertical;
-}
+        .dashboard-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
 
-.save-btn {
-    margin-top: 7px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background: #16a34a;
-    color: white;
-    cursor: pointer;
-}
+        .messages-btn {
+            color: #2563eb;
+        }
 
-.save-btn:hover {
-    opacity: 0.85;
-}
+        .bookings-btn {
+            color: #16803c;
+        }
 
-.status-badge {
-    font-weight: bold;
-}
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
 
-@media (max-width: 700px) {
+        .section-header h2 {
+            margin: 0;
+        }
 
-    th,
-    td {
-        font-size: 14px;
-        padding: 8px;
-    }
+        .back-btn,
+        .refresh-btn {
+            padding: 10px 18px;
+            margin: 3px;
+            border: none;
+            border-radius: 6px;
+            background: #222;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-    textarea {
-        width: 180px;
-    }
-}
+        .refresh-btn {
+            background: #e31837;
+        }
 
-</style>
+        .back-btn:hover,
+        .refresh-btn:hover {
+            opacity: 0.85;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-bottom: 15px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .table-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            background: #eeeeee;
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .booking-id {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 220px;
+            min-height: 80px;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        .save-btn {
+            margin-top: 7px;
+            padding: 9px 13px;
+            border: none;
+            border-radius: 6px;
+            background: #16803c;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .save-btn:hover {
+            background: #11632e;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 25px;
+            color: #666;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            header {
+                padding: 20px 12px;
+            }
+
+            header h1 {
+                font-size: 25px;
+            }
+
+            .dashboard-btn {
+                width: 100%;
+                max-width: 350px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+            }
+
+            .section-header h2 {
+                font-size: 22px;
+            }
+
+            .table-box {
+                padding: 10px;
+            }
+
+            th,
+            td {
+                font-size: 14px;
+                padding: 9px;
+            }
+
+            textarea {
+                width: 180px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <header>
-
-<h1>TVS CARS</h1>
-
-<p>Admin Dashboard</p>
-
+    <h1>TVS BIKES &amp; SCOOTERS</h1>
+    <p>Admin Dashboard</p>
 </header>
 
+<main class="container">
 
-<div class="container">
+    <!-- MAIN DASHBOARD -->
+    <section id="dashboard" class="dashboard admin-section active">
+        <h2>Admin Dashboard</h2>
 
-<h2>Customer Messages 📩</h2>
+        <div class="dashboard-buttons">
+            <button
+                type="button"
+                class="dashboard-btn messages-btn"
+                onclick="showMessages()"
+            >
+                📩<br><br>
+                Customer Messages
+            </button>
 
-<button class="refresh-btn" onclick="loadMessages()">
-Refresh Messages
-</button>
+            <button
+                type="button"
+                class="dashboard-btn bookings-btn"
+                onclick="showBookings()"
+            >
+                🛵<br><br>
+                Customer Bookings
+            </button>
+        </div>
+    </section>
 
-<p id="status" class="status">
-Loading messages...
-</p>
+    <!-- CUSTOMER MESSAGES -->
+    <section id="messagesSection" class="admin-section">
+        <div class="section-header">
+            <h2>Customer Messages 📩</h2>
 
+            <div>
+                <button
+                    type="button"
+                    class="refresh-btn"
+                    onclick="loadMessages()"
+                >
+                    Refresh
+                </button>
 
-<div class="table-box">
+                <button
+                    type="button"
+                    class="back-btn"
+                    onclick="showDashboard()"
+                >
+                    ← Back
+                </button>
+            </div>
+        </div>
 
-<table>
+        <p id="messageStatus" class="status" role="status">
+            Click Customer Messages to load messages.
+        </p>
 
-<thead>
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Reply</th>
+                    </tr>
+                </thead>
 
-<tr>
+                <tbody id="messageTable"></tbody>
+            </table>
+        </div>
+    </section>
 
-<th>Name</th>
-<th>Email</th>
-<th>Message</th>
-<th>Date</th>
-<th>Status</th>
-<th>Reply</th>
+    <!-- CUSTOMER BOOKINGS -->
+    <section id="bookingsSection" class="admin-section">
+        <div class="section-header">
+            <h2>Customer Bookings 🛵</h2>
 
-</tr>
+            <div>
+                <button
+                    type="button"
+                    class="refresh-btn"
+                    onclick="loadBookings()"
+                >
+                    Refresh
+                </button>
 
-</thead>
+                <button
+                    type="button"
+                    class="back-btn"
+                    onclick="showDashboard()"
+                >
+                    ← Back
+                </button>
+            </div>
+        </div>
 
-<tbody id="messageTable">
+        <p id="bookingStatus" class="status" role="status">
+            Click Customer Bookings to load bookings.
+        </p>
 
-</tbody>
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Selected Bike / Scooter</th>
+                    </tr>
+                </thead>
 
-</table>
+                <tbody id="bookingTable"></tbody>
+            </table>
+        </div>
+    </section>
 
-</div>
-
-</div>
-
+</main>
 
 <script>
+"use strict";
+
+// ======================================
+// GOOGLE APPS SCRIPT URL
+// ======================================
 
 const GOOGLE_SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbwyMizpelcSB8pFF2NkpLVhKvCIt2_XP4byYMCUluDYYfkuL3qGG5LbjsS6HVSEW74d4A/exec";
+    "https://script.google.com/macros/s/AKfycbwyMizpelcSB8pFF2NkpLVhKvCIt2_XP4byYMCUluDYYfkuL3qGG5LbjsS6HVSEW74d4A/exec";
 
+// ======================================
+// RESPONSE HANDLER
+// Accepts:
+//   [...]
+//   { success: true, data: [...] }
+//   { success: true, messages: [...] }
+//   { success: true, bookings: [...] }
+// ======================================
 
-async function loadMessages() {
+function extractArray(result, label) {
+    if (Array.isArray(result)) {
+        return result;
+    }
 
-    const table =
-        document.getElementById("messageTable");
+    if (result && result.success === false) {
+        throw new Error(
+            result.error || label + " could not be loaded."
+        );
+    }
 
-    const status =
-        document.getElementById("status");
-
-    status.textContent =
-        "Loading messages...";
-
-    try {
-
-        const response =
-            await fetch(GOOGLE_SCRIPT_URL);
-
-        if (!response.ok) {
-            throw new Error("Network error");
+    if (result && result.success === true) {
+        if (Array.isArray(result.data)) {
+            return result.data;
         }
 
-        const messages =
-            await response.json();
+        if (Array.isArray(result.messages)) {
+            return result.messages;
+        }
 
-        table.innerHTML = "";
+        if (Array.isArray(result.bookings)) {
+            return result.bookings;
+        }
+    }
 
-        if (!messages || messages.length === 0) {
+    throw new Error(
+        "Unexpected " + label + " response from Apps Script."
+    );
+}
 
-            status.textContent =
-                "No messages found.";
+// ======================================
+// SHOW SECTIONS
+// ======================================
 
+function showDashboard() {
+    document.getElementById("dashboard").classList.add("active");
+    document.getElementById("messagesSection").classList.remove("active");
+    document.getElementById("bookingsSection").classList.remove("active");
+}
+
+function showMessages() {
+    document.getElementById("dashboard").classList.remove("active");
+    document.getElementById("bookingsSection").classList.remove("active");
+    document.getElementById("messagesSection").classList.add("active");
+
+    loadMessages();
+}
+
+function showBookings() {
+    document.getElementById("dashboard").classList.remove("active");
+    document.getElementById("messagesSection").classList.remove("active");
+    document.getElementById("bookingsSection").classList.add("active");
+
+    loadBookings();
+}
+
+// ======================================
+// FETCH JSON
+// ======================================
+
+async function fetchJSON(url, options) {
+    const response = await fetch(url, options || {
+        method: "GET",
+        cache: "no-store"
+    });
+
+    const text = await response.text();
+
+    let result;
+
+    try {
+        result = JSON.parse(text);
+    } catch {
+        throw new Error(
+            "Apps Script returned non-JSON content. " +
+            "Check the /exec deployment URL and backend response."
+        );
+    }
+
+    if (!response.ok) {
+        throw new Error("Server error: " + response.status);
+    }
+
+    return result;
+}
+
+// ======================================
+// TABLE HELPERS
+// ======================================
+
+function addTextCell(row, value, className) {
+    const cell = document.createElement("td");
+
+    cell.textContent =
+        value === undefined || value === null
+            ? ""
+            : String(value);
+
+    if (className) {
+        cell.className = className;
+    }
+
+    row.appendChild(cell);
+
+    return cell;
+}
+
+function showEmptyRow(table, columnCount, message) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+
+    cell.colSpan = columnCount;
+    cell.className = "empty-message";
+    cell.textContent = message;
+
+    row.appendChild(cell);
+    table.appendChild(row);
+}
+
+// ======================================
+// LOAD CUSTOMER BOOKINGS
+// Expected backend action: bookings
+// ======================================
+
+async function loadBookings() {
+    const table = document.getElementById("bookingTable");
+    const status = document.getElementById("bookingStatus");
+
+    table.replaceChildren();
+    status.textContent = "Loading bookings...";
+
+    try {
+        const result = await fetchJSON(
+            GOOGLE_SCRIPT_URL +
+            "?action=bookings&t=" + Date.now()
+        );
+
+        console.log("Bookings response:", result);
+
+        const bookings = extractArray(result, "bookings");
+
+        if (bookings.length === 0) {
+            showEmptyRow(table, 5, "No bookings found.");
+            status.textContent = "No bookings found.";
             return;
         }
 
+        bookings.forEach(function (booking) {
+            const row = document.createElement("tr");
 
-        messages.forEach(function(message) {
+            addTextCell(
+                row,
+                booking.bookingId ?? booking["Booking ID"] ?? booking.booking_id,
+                "booking-id"
+            );
 
-            const row =
-                document.createElement("tr");
+            addTextCell(row, booking.name ?? booking.Name);
+            addTextCell(row, booking.email ?? booking.Email);
+            addTextCell(row, booking.mobile ?? booking.Mobile);
 
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHTML(message.name)}
-                </td>
-
-                <td>
-                    ${escapeHTML(message.email)}
-                </td>
-
-                <td>
-                    ${escapeHTML(message.message)}
-                </td>
-
-                <td>
-                    ${escapeHTML(message.date)}
-                </td>
-
-                <td class="status-badge">
-                    ${escapeHTML(message.status || "Pending")}
-                </td>
-
-                <td>
-
-                    <textarea
-                        id="reply-${message.row}"
-                        placeholder="Write reply..."
-                    >${escapeHTML(message.reply || "")}</textarea>
-
-                    <br>
-
-                    <button
-                        class="save-btn"
-                        onclick="saveReply(${message.row})"
-                    >
-                        Save Reply
-                    </button>
-
-                </td>
-
-            `;
+            addTextCell(
+                row,
+                booking.car ??
+                booking.vehicle ??
+                booking["Selected Car"] ??
+                booking["Selected Vehicle"]
+            );
 
             table.appendChild(row);
-
         });
 
-
         status.textContent =
-            messages.length +
-            " message(s) found.";
+            bookings.length + " booking(s) found.";
 
-    }
+    } catch (error) {
+        console.error("BOOKING ERROR:", error);
 
-    catch (error) {
-
-        console.error(error);
-
-        status.textContent =
-            "Unable to load messages.";
-
-    }
-
-}
-
-
-async function saveReply(rowNumber) {
-
-    const replyBox =
-        document.getElementById(
-            "reply-" + rowNumber
+        showEmptyRow(
+            table,
+            5,
+            "Unable to load bookings. Check the Apps Script response."
         );
 
-    const reply =
-        replyBox.value.trim();
+        status.textContent = "Unable to load bookings.";
+    }
+}
 
+// ======================================
+// LOAD CUSTOMER MESSAGES
+// Expected backend action: messages
+// ======================================
+
+async function loadMessages() {
+    const table = document.getElementById("messageTable");
+    const status = document.getElementById("messageStatus");
+
+    table.replaceChildren();
+    status.textContent = "Loading messages...";
+
+    try {
+        const result = await fetchJSON(
+            GOOGLE_SCRIPT_URL +
+            "?action=messages&t=" + Date.now()
+        );
+
+        console.log("Messages response:", result);
+
+        const messages = extractArray(result, "messages");
+
+        if (messages.length === 0) {
+            showEmptyRow(table, 6, "No messages found.");
+            status.textContent = "No messages found.";
+            return;
+        }
+
+        messages.forEach(function (message) {
+            const row = document.createElement("tr");
+
+            addTextCell(row, message.name ?? message.Name);
+            addTextCell(row, message.email ?? message.Email);
+            addTextCell(row, message.message ?? message.Message);
+
+            let dateValue = message.date ?? message.Date ?? "";
+
+            if (dateValue && !isNaN(Date.parse(dateValue))) {
+                dateValue = new Date(dateValue).toLocaleString();
+            }
+
+            addTextCell(row, dateValue);
+
+            addTextCell(
+                row,
+                message.status ?? message.Status ?? "Pending",
+                "status-badge"
+            );
+
+            const replyCell = document.createElement("td");
+            const textarea = document.createElement("textarea");
+
+            // The backend must return the actual Google Sheet row number.
+            const rowNumber = message.row ?? message.rowNumber;
+
+            textarea.placeholder = "Write reply...";
+            textarea.value = message.reply ?? message.Reply ?? "";
+            textarea.setAttribute("aria-label", "Reply to customer");
+
+            const saveButton = document.createElement("button");
+
+            saveButton.type = "button";
+            saveButton.className = "save-btn";
+            saveButton.textContent = "Save Reply";
+
+            if (rowNumber === undefined || rowNumber === null) {
+                saveButton.disabled = true;
+                saveButton.title =
+                    "The backend did not provide a sheet row number.";
+            } else {
+                saveButton.addEventListener("click", function () {
+                    saveReply(
+                        rowNumber,
+                        message.email ?? message.Email ?? "",
+                        textarea,
+                        saveButton
+                    );
+                });
+            }
+
+            replyCell.appendChild(textarea);
+            replyCell.appendChild(document.createElement("br"));
+            replyCell.appendChild(saveButton);
+
+            row.appendChild(replyCell);
+            table.appendChild(row);
+        });
+
+        status.textContent =
+            messages.length + " message(s) found.";
+
+    } catch (error) {
+        console.error("MESSAGE ERROR:", error);
+
+        showEmptyRow(
+            table,
+            6,
+            "Unable to load messages. Check the Apps Script response."
+        );
+
+        status.textContent = "Unable to load messages.";
+    }
+}
+
+// ======================================
+// SAVE ADMIN REPLY
+// Backend action: reply
+// ======================================
+
+async function saveReply(rowNumber, email, textarea, button) {
+    const reply = textarea.value.trim();
 
     if (!reply) {
-
         alert("Please write a reply first.");
-
         return;
     }
 
+    const originalText = button.textContent;
+
+    button.disabled = true;
+    button.textContent = "Saving...";
 
     try {
-
-        const formData =
-            new URLSearchParams();
+        const formData = new URLSearchParams();
 
         formData.append("action", "reply");
-        formData.append("row", rowNumber);
+        formData.append("row", String(rowNumber));
+        formData.append("email", email);
         formData.append("reply", reply);
-        formData.append("status", "Replied");
 
+        const result = await fetchJSON(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            body: formData
+        });
 
-        const response =
-            await fetch(
-                GOOGLE_SCRIPT_URL,
-                {
-                    method: "POST",
-                    body: formData
-                }
+        if (!result || result.success !== true) {
+            throw new Error(
+                result && result.error
+                    ? result.error
+                    : "Unable to save reply."
             );
-
-
-        const result =
-            await response.json();
-
-
-        if (result.success) {
-
-            alert("Reply saved successfully!");
-
-
-            loadMessages();
-
-        } else {
-
-            alert(
-                "Error: " +
-                (result.error || "Unable to save reply.")
-            );
-
         }
 
-    }
+        if (result.emailSent === false) {
+            alert(
+                "Reply saved, but the email could not be sent."
+            );
+        } else {
+            alert(result.message || "Reply saved successfully.");
+        }
 
-    catch (error) {
+        await loadMessages();
 
-        console.error(error);
+    } catch (error) {
+        console.error("SAVE REPLY ERROR:", error);
 
         alert(
-            "Could not save reply."
+            "Could not confirm that the reply was saved.\n\n" +
+            error.message +
+            "\n\nCheck your Google Sheet before trying again."
         );
 
+    } finally {
+        button.disabled = false;
+        button.textContent = originalText;
     }
-
 }
-
-
-function escapeHTML(value) {
-
-    if (value === null || value === undefined) {
-        return "";
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-loadMessages();
-
 </script>
 
 </body>
-
 </html>
+
